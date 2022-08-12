@@ -1,0 +1,180 @@
+\catcode`\@=11
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\input utils
+
+\parindent=0pt
+
+\def\gobble#1{}
+
+\newdimen\pp@barwidth 		\pp@barwidth=2pt
+\newdimen\pp@barhorskip 	\pp@barhorskip=0.3cm
+\newskip\pp@vertskip 		\pp@vertskip=0.2cm plus 0.1cm minus 0.1cm
+\newdimen\pp@afterhorskip	\pp@afterhorskip=0.2cm
+\newskip\pp@innervertskip	\pp@innervertskip=0.2cm plus 0.1cm minus 0.1cm
+\newdimen\pp@breaklimit		\pp@breaklimit=10pt
+\newbox\pp@box
+\newbox\pp@boxsplit
+
+\def\mindim#1#2{\ifdim #1 < #2 \ifdim #1 < 0pt #2 \else #1 \fi \else #2 \fi}
+
+\newcount\@pp@splits
+
+\def\pp@dimexpr{\dimexpr\textheight-\pagetotal-\pp@innervertskip*2-\baselineskip\relax}
+
+\long\def\dobble#1#2{}
+
+\def\pp@splitbox@{%
+	\ifvoid\pp@box%
+		\expandafter\gobble%
+	\else%
+		\ifdim\pp@dimexpr < \pp@breaklimit%
+			\newpage%
+		\else \nobreak \fi%
+		\setbox\pp@boxsplit=\vsplit\pp@box to \mindim{\pp@dimexpr}{\dimexpr\ht\pp@box + \dp\pp@box\relax}%
+		\ifvoid\pp@boxsplit \else%
+		\colorbox{\pp@bg}{%
+			\advance\hsize by\dimexpr -\pp@barwidth - \pp@barhorskip - \leftskip\relax%
+			\leavevmode\color{\pp@bc}\vrule width \pp@barwidth \hskip \pp@barhorskip%
+			\vbox to \dimexpr \ht\pp@boxsplit + \pp@innervertskip *2 \relax{%
+			\vskip \pp@innervertskip%
+			\color{\pp@fg}\unvbox\pp@boxsplit \hskip \pp@afterhorskip%
+			\vskip \pp@innervertskip}%
+		}\par%
+		\fi%
+	\fi%
+	\pp@splitbox@%
+}
+
+\def\pp@splitbox{\@pp@splits=0 \pp@splitbox@}
+
+\newenvironment{ppbox}[3]{%
+	\def\pp@bg{#1} \def\pp@fg{#2} \def\pp@bc{#3}%
+	\vskip \pp@vertskip%
+	\setbox\pp@box=\vbox\bgroup\advance\hsize by \dimexpr -\pp@barwidth - \pp@barhorskip - \pp@afterhorskip - \leftskip\relax\leftskip=0pt%
+}{%
+	\egroup%
+	{\fboxsep=0pt\pp@splitbox}%
+	\ifdim\pagetotal>0pt \vskip \pp@vertskip \fi%
+}
+
+\newskip\pp@titlevspace	\pp@titlevspace=0.2cm plus 2pt minus 2pt
+\def\pp@curr@bar@color{black}
+\def\pp@curr@ord@color{black}
+
+\def\@ppemph{\bgroup\bfseries\color{\pp@curr@bar@color}}
+\def\ppemph{\expandafter\@ppemph \let\@trash@=}
+\def\@ppord{\bgroup\bfseries\color{\pp@curr@ord@color}}
+\def\ppord{\expandafter\@ppord \let\@trash@=}
+
+\newcounter{pp@mathcount}[subsection]
+\def\@@ppmathcount{\thesubsection.\the\numexpr \thepp@mathcount +1\relax}
+\def\@ppmathcount{\thesubsection.\thepp@mathcount}
+\def\ppmathcount{\@ifstar {\@ppmathcount}{\stepcounter{pp@mathcount}\@ppmathcount}}
+
+% \newpp{env name}{bg color}{fg color}{bar color}
+\def\newpp#1#2#3#4{%
+	\definecolor{#1@bgcolor}{RGB}{#2}\definecolor{#1@fgcolor}{RGB}{#3}\definecolor{#1@barcolor}{RGB}{#4}%
+
+	\newenvironment{#1}{%
+		\def\pp@curr@bar@color{#1@barcolor}%
+		\def\pp@curr@ord@color{#1@fgcolor}%
+		\begin{ppbox}{#1@bgcolor}{#1@fgcolor}{#1@barcolor}}
+	{\end{ppbox}}%
+}
+
+\newskip\pp@headerskip		\pp@headerskip=0.2cm plus 2pt minus 2pt
+% \newpp{env name}{header}{bg color}{fg color}{bar color}
+\def\newmathpp#1#2#3#4#5{%
+	\definecolor{#1@bgcolor}{RGB}{#3}\definecolor{#1@fgcolor}{RGB}{#4}\definecolor{#1@barcolor}{RGB}{#5}%
+
+	\expandafter\def\csname #1@ppman\endcsname##1{%
+		\begin{ppbox}{#1@bgcolor}{#1@fgcolor}{#1@barcolor}%
+			\def\pp@curr@bar@color{#1@barcolor}%
+			\def\pp@curr@ord@color{#1@fgcolor}%
+
+			\grabparams{##1}{\@pp@ref@\@pp@title@}%
+
+			\def\@@pp@title@{}
+			\ifx\empty\@pp@ref@ \else%
+				\hypertarget{pp:\@pp@ref@}{}%
+				\expandafter\xdef\csname \@pp@ref@ @title\endcsname{\@@ppmathcount}%
+
+				\ifx\empty\@pp@title@ \else%
+					\def\@@pp@title@{ (\@pp@title@)}%
+					\expandafter\xdef\csname \@pp@ref@ @title\endcsname{\@pp@title@}%
+					\phantomsection%
+					\addcontentsline{toc}{subsubsection}{\@pp@title@}%
+				\fi%
+			\fi%
+
+			\@ifstar{\textcolor{#1@barcolor}{\bfseries #2 \ppmathcount\@@pp@title@:}\vskip\pp@headerskip}%
+					{\textcolor{#1@barcolor}{\bfseries #2\@@pp@title@:}\vskip\pp@headerskip}%
+	}
+
+	\newenvironment{#1}[1][]{%
+		\csname #1@ppman\endcsname{##1}
+	}{%
+		\end{ppbox}%
+	}
+
+	\newenvironment{#1*}[1][]{%
+		\csname #1@ppman\endcsname{##1}*
+	}{%
+		\end{ppbox}%
+	}
+}
+
+\def\@@@ppref#1#2{\ppemph{\hyperlink{pp:#2}{#1}}}
+\def\@@ppref[#1]#2{\@@@ppref{#1 \csname #2@title\endcsname}{#2}}
+\def\@ppref#1{\@@@ppref{\csname #1@title\endcsname}{#1}}
+\def\ppref{\@ifnextchar[ {\@@ppref}{\@ppref}}
+
+% \barcolorbox{bg}{fg}{barg}{text} -> places text in a colored box.
+% 									background color of box is bg
+% 									foreground color is fg
+% 									bar color is barg
+% 									width of the bars is \pp@barwidth
+\long\def\barcolorbox#1#2#3#4{\bgroup%
+	\fboxsep=0pt%
+	\colorbox[RGB]{#1}{%
+		\color[RGB]{#3}%
+		\vrule width \pp@barwidth%
+		\vbox{%
+			\hrule height \pp@barwidth%
+			\vbox{%
+			\vskip\pp@vertskip%
+			\hbox{\color[RGB]{#2}%
+				\hskip\pp@barhorskip%
+				\vbox{%
+					\advance\hsize by -2\pp@barwidth%
+					\advance\hsize by -2\pp@barhorskip%
+					#4%
+				}%
+				\hskip\pp@barhorskip%
+			}%
+			\vskip\pp@vertskip%
+			}%
+			\hrule height \pp@barwidth%
+		}%
+		\vrule width \pp@barwidth%
+	}\egroup%
+}
+
+\def\initpps{
+	\newmathpp{defn}{Definition}{255,200,200}{150,0,0}{200,100,100}	% red
+	\newmathpp{thrm}{Theorem}{200,200,255}{0,0,150}{100,100,200}		% blue
+	\newmathpp{coro}{Corollary}{220,220,255}{0,0,130}{80,80,200}
+	\newmathpp{lemm}{Lemma}{255,200,255}{150,0,150}{200,100,200}		% purple
+	\newmathpp{prop}{Proposition}{255,240,180}{150,100,0}{200,150,70}	% orange
+	\newmathpp{exam}{Example}{200,255,200}{0,100,0}{50,150,50}		% green
+	\newmathpp{note}{Note}{255,255,200}{150,100,0}{200,150,100}			% yellow
+	\newmathpp{proof}{Proof}{255,255,255}{0,0,0}{0,0,0}					% black and white
+	\newmathpp{claim}{Claim}{255,255,255}{0,0,0}{0,0,0}
+	\newmathpp{exercise}{Exercise}{200,255,200}{0,100,0}{50,150,50}
+	\newmathpp{solution}{Solution}{255,255,255}{0,0,0}{0,0,0}
+
+	\newpp{blankpp}{255,255,255}{0,0,0}{0,0,0}
+}

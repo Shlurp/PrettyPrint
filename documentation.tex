@@ -1,0 +1,261 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{listings}
+
+\input prettyprint
+
+\initpps
+
+\def\PP{{\scshape PrettyPrint}}
+
+\def\ppsection#1{\begin{blankpp} {\bfseries\Large #1} \end{blankpp}}
+
+\font\bftt=rm-lmtk10
+
+\definecolor{showcasecolor}{RGB}{0,100,255}
+\def\showcase{\medskip\bgroup \color{showcasecolor} \leavevmode\vrule width 1pt \strut \aftergroup\medskip \catcode`)=2 \catcode`\{=12 \catcode`\}=12 \catcode`\\=12 \bftt\ \let\next=}
+\def\macrocalls{\bgroup \color{showcasecolor} \catcode`)=2 \catcode`\{=12 \catcode`\}=12 \catcode`\\=12 \tt \let\next=}
+
+% Kinda just took this from Overleaf
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+\barcolorbox{255,200,200}{150,0,0}{255,150,150}{
+	\hfil{\Huge\scshape PrettyPrint}\hfil
+
+	\hfil{\scshape Macros and Environments for Printing Pretty}\hfil
+
+	\medskip
+	\hfil{\small Slurp}\hfil
+}
+
+\bigskip
+
+The PrettyPrint package provides several macros for creating pretty boxes of text.
+I do not recommend you use it, and rather use a better and more established package like tcolorbox instead.
+
+\ppsection{Installation}
+
+Download this git repository, and move the {\tt prettyprint.tex} file either into your working directory (where your \TeX\ 
+project is) or into your {\tt texmf} tree (something like {\tt\catcode`\~=12 ~/texmf/tex/local}).
+Then in your \TeX\ file add the line
+
+\begin{lstlisting}[language=tex]
+	\input prettyprint
+\end{lstlisting}
+
+\ppsection{Environments}
+
+\showcase(\begin{ppbox}{<bg color>}{<fg color>}{<bar color>} material... \end{ppbox})
+
+This creates a colored box with a line on the left side of color {\tt <bar color>}, and puts {\tt material...} in it.
+The box spans the width of the document and can break over pages.
+So for example the following yields:
+
+\begin{lstlisting}[language=tex]
+	\begin{ppbox}{blue!20!white}{blue!70!white}{blue!50!white}
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+		Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	\end{ppbox}
+\end{lstlisting}
+
+\begin{ppbox}{blue!20!white}{blue!70!white}{blue!50!white}
+	Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+	Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+	Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+	Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{ppbox}
+
+\ppsection{Macros}
+
+\showcase(\barcolorbox{<bg color>}{<fg color>}{<bar color>}{<text>...})
+
+This creates a colored box with a rectangular border (like the one at the beginning of this document).
+The colors must all be in an RGB style.
+The box spans the width of the document, not the width of the text inside.
+The box cannot break.
+So for example, the following code gives:
+
+\begin{lstlisting}[language=tex]
+	\barcolorbox{220,220,255}{0,0,130}{80,80,200}{
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+		Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	}
+\end{lstlisting}
+
+\barcolorbox{220,220,255}{0,0,130}{80,80,200}{
+	Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+	Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+	Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+	Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+}
+
+In the future this will become an environment, but I'm too lazy at the moment.
+
+\showcase(\newpp{<name>}{<bg color>}{<fg color>}{<bar color>})
+
+Creates an environment by the name {\tt <name>} which is equivalent to passing {\tt <bg color>}, etc to a {\tt ppbox}.
+That is, something like \macrocalls(\newpp{bluebox}{255,200,200}{255,50,50}{255,150,150}) creates an environment called {\tt bluebox}
+and calling \macrocalls(\begin{bluebox}) is equivalent to calling {\tt ppbox} with colors defined as those RGB values.
+
+\begin{lstlisting}[language=tex]
+	\newpp{bluebox}{255,200,200}{255,50,50}{255,150,150}
+
+	\begin{bluebox}
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+		Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	\end{bluebox}
+\end{lstlisting}
+
+Yields
+
+\newpp{bluebox}{255,200,200}{255,50,50}{255,150,150}
+
+\begin{bluebox}
+	Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+	Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+	Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+	Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{bluebox}
+
+\showcase(\newmathpp{<name>}{<header>}{<bg color>}{<fg color>}{<bar color>})
+
+This is like \macrocalls(\newpp) but instead creates a ``math'' colored box.
+At the top of the box the {\tt <header>} will be printed.
+It is also possible to pass optional arguments for tags and headers to the {\tt <name>} environment which will allow you to 
+reference it in the future and add a header to the box.
+
+\begin{lstlisting}[language=tex]
+	\newmathpp{definition}{Definition}{255,200,200}{150,0,0}{255,100,100}
+
+	\begin{definition}[evaldefinition,Eigenvalue\ Definition]
+		An eigenvalue of a linear transformation $T$ is a value $\lambda\in K$ such that there exists a non-zero vector $v$
+		where
+		\[ T(v) = \lambda v \]
+	\end{definition}
+\end{lstlisting}
+\newmathpp{definition}{Definition}{255,200,200}{150,0,0}{255,100,100}
+                                                                                                                        
+\begin{definition}[evaldefinition,Eigenvalue\ Definition]
+	An eigenvalue of a linear transformation $T$ is a value $\lambda\in K$ such that there exists a non-zero vector $v$
+	where
+	\[ T(v) = \lambda v \]
+\end{definition}
+
+\macrocalls(\newmathpp) also creates an environment called {\tt <name>*} which also prints the current math counter, a counter
+which increments after every time you call a starred mathpp and resets at every subsection.
+So if we use the {\tt definition} mathpp defined above and use:
+
+\begin{lstlisting}[language=tex]
+	\begin{definition*}[derivativedefinition,Derivatives]
+		If $f$ is a real function defined at a point $x$, then the derivative of $f$ at $x$, denoted $f'(x)$, is defined to be:
+		\[ f'(x) = \lim_{h\to0} \frac{f(x+h) - f(x)}{h} \]
+		If the limit exists.
+	\end{definition*}
+\end{lstlisting}
+
+\setcounter{section}{1} \setcounter{subsection}{1}
+
+\begin{definition*}[derivativedefinition,Derivatives]
+	If $f$ is a real function defined at a point $x$, then the derivative of $f$ at $x$, denoted $f'(x)$, is defined to be:
+	\[ f'(x) = \lim_{h\to0} \frac{f(x+h) - f(x)}{h} \]
+	If the limit exists.
+\end{definition*}
+
+\showcase(\ppemph{<material>})
+
+This prints {\tt material} in bold and in the same color as the bar of the current pp environment (if it is outside of a pp
+environment, it is black).
+So for example using the previously defined {\tt definition} environment:
+
+\begin{lstlisting}[language=tex]
+	\begin{definition*}
+		A set $G$ is called a \ppemph{group} if it is equipped with a binary operation $\circ$ such that $\circ$ is associative,
+		has an identity $e\in G$ such that for every $a\in G$ $e\circ a=a\circ e=a$, and for every $a\in G$ there exists an $a^{-1}\in G$
+		where $a\circ a^{-1} = a^{-1}\circ a = e$.
+	\end{definition*}
+\end{lstlisting}
+
+\begin{definition*}
+	A set $G$ is called a \ppemph{group} if it is equipped with a binary operation $\circ$ such that $\circ$ is associative,
+	has an identity $e\in G$ such that for every $a\in G$ $e\circ a=a\circ e=a$, and for every $a\in G$ there exists an $a^{-1}\in G$
+	where $a\circ a^{-1} = a^{-1}\circ a = e$.
+\end{definition*}
+
+\showcase(\ppord{<material>})
+
+This is like \macrocalls(\ppemph) but sets the color to the foreground color of the current pp environment (black if not inside a pp
+environment).
+
+\showcase(\ppref[<prefix>]{<tag>})
+
+This creates a hyperlink to the mathpp environment tagged with {\tt <tag>}, prepending {\tt prefix} to the hyperlink title if provided.
+The hyperlink's title is the mathpp environment's header if it was provided, and otherwise is the pp math counter value of the target.
+
+\begin{lstlisting}[language=tex]
+	\begin{definition*}[examplelink]
+		This is an example usage of a mathpp which references \ppref[definition]{examplelink} (itself), and \ppref{evaldefinition}.
+	\end{definition*}
+\end{lstlisting}
+
+\begin{definition*}[examplelink]
+	This is an example usage of a mathpp which references \ppref[definition]{examplelink} (itself), and \ppref{evaldefinition}.
+\end{definition*}
+
+\showcase(\initpps)
+
+This just defines a bunch of pp environments, literally expands to:
+
+\begin{lstlisting}[language=tex]
+	\newmathpp{defn}{Definition}{255,200,200}{150,0,0}{200,100,100}
+	\newmathpp{thrm}{Theorem}{200,200,255}{0,0,150}{100,100,200}
+	\newmathpp{coro}{Corollary}{220,220,255}{0,0,130}{80,80,200}
+	\newmathpp{lemm}{Lemma}{255,200,255}{150,0,150}{200,100,200}
+	\newmathpp{prop}{Proposition}{255,240,180}{150,100,0}{200,150,70}
+	\newmathpp{exam}{Example}{200,255,200}{0,100,0}{50,150,50}
+	\newmathpp{note}{Note}{255,255,200}{150,100,0}{200,150,100}
+	\newmathpp{proof}{Proof}{255,255,255}{0,0,0}{0,0,0}
+	\newmathpp{claim}{Claim}{255,255,255}{0,0,0}{0,0,0}
+	\newmathpp{exercise}{Exercise}{200,255,200}{0,100,0}{50,150,50}
+	\newmathpp{solution}{Solution}{255,255,255}{0,0,0}{0,0,0}
+
+	\newpp{blankpp}{255,255,255}{0,0,0}{0,0,0}
+\end{lstlisting}
+
+So use it in your preamble or wherever if you'd like.
+
+\end{document}
+
