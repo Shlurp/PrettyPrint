@@ -8,6 +8,50 @@
 \parindent=0pt
 
 \def\gobble#1{}
+\def\nul{\noexpand\nul}
+\def\afterfi#1#2\fi{\fi#1}
+
+\newcount\num@coms
+\def\@grabparams#1{%
+    \ifx\nul#1%
+        \ifx\empty\curr@com \else%
+            \expandafter\let\csname com@\the\num@coms\endcsname=\curr@com%
+            \def\curr@com{}%
+            \advance\num@coms by 1%
+        \fi%
+        \expandafter\gobble%
+    \else%
+        \ifx,#1%
+            \expandafter\let\csname com@\the\num@coms\endcsname=\curr@com%
+            \def\curr@com{}%
+            \advance\num@coms by 1%
+        \else%
+            \edef\@@{\curr@com}%
+            \edef\curr@com{\@@#1}%
+        \fi%
+    \fi%
+    \@grabparams%
+}
+
+\def\grabvarparams#1{\num@coms=0 \def\curr@com{} \@grabparams #1\nul}
+
+\newcount\num@@coms
+\def\@@@grabparams#1{%
+    \ifx\nul#1%
+        \expandafter\gobble%
+    \else%
+        \relax\ifnum \num@@coms < \num@coms\relax%
+            \edef#1{\csname com@\the\num@@coms \endcsname}%
+            \advance\num@@coms by 1%
+        \else%
+            \edef#1{}%
+        \fi%
+    \fi%
+    \@@@grabparams%
+}
+
+% \grabparams{e1,e2,...,eN}{\cs1,\cs2,...,\csN} -> \def\cs1{e1} ... \def\csN{eN}
+\def\grabparams#1#2{\grabvarparams{#1}\num@@coms=0 \@@@grabparams#2\nul}
 
 \newdimen\pp@barwidth 		\pp@barwidth=2pt
 \newdimen\pp@barhorskip 	\pp@barhorskip=0.3cm
